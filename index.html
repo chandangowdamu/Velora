@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Velora | AI-Powered Healthcare & Diagnostics — Where Wellness Meets AI</title>
+    <meta name="description" content="Velora - Leading AI-powered healthcare portal featuring 24/7 care, A-Z medical disease dictionary, 3D anatomical scan viewer, and online booking. Where wellness meets AI.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ==================== HEADER SECTION ==================== -->
+    <header class="navbar-header" id="header">
+        <div class="nav-container">
+            <a href="#" class="brand-logo">
+                <img src="velora-logo.png" alt="Velora Logo" class="header-logo-img">
+                <div class="logo-text">
+                    <span class="brand-title">VELORA</span>
+                    <span class="brand-subtitle">WELLNESS MEETS AI</span>
+                </div>
+            </a>
+
+            <nav class="nav-links" id="navMenu">
+                <a href="#hero" class="nav-link active">Home</a>
+                <a href="#disease-explorer" class="nav-link">A-Z Diseases</a>
+                <a href="#3d-viewer" class="nav-link">3D Animation</a>
+                <a href="#latest-diseases" class="nav-link">Latest Insights</a>
+                <a href="#contact" class="nav-link">Contact</a>
+            </nav>
+
+            <div class="nav-actions">
+                <button class="api-key-badge" id="apiKeyTriggerBtn">
+                    <span class="status-dot"></span>
+                    <span class="api-btn-text">API Key: Active</span>
+                </button>
+                <a href="/login.html" class="btn-primary-pill">Book Appointment</a>
+            </div>
+
+            <button class="mobile-toggle" id="mobileMenuBtn" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <!-- ==================== HERO SECTION WITH FULL BACKGROUND VIDEO COVER ==================== -->
+        <section class="hero-section" id="hero">
+            <!-- Full Cover Background 3D Video (No Symbols or Controls) -->
+            <video id="heroBgVideo" autoplay loop muted playsinline class="hero-full-bg-video">
+                <source src="hero.mp4" type="video/mp4">
+            </video>
+            <!-- Dark Gradient Overlay for Crisp Text Readability -->
+            <div class="hero-video-gradient-overlay"></div>
+
+            <div class="hero-container">
+                <div class="hero-content-overlay">
+                    <div class="hero-badge">
+                        <span class="pulse-icon"></span> Next-Gen AI Diagnostic Engine Active
+                    </div>
+                    <h1 class="hero-title hero-title-overlay">
+                        <span class="white-glow-text">Your Health,</span> <br>
+                        <span class="cyan-gradient-text">Our Priority</span>
+                    </h1>
+                    <p class="hero-description hero-desc-overlay">
+                        Compassionate Care for You and Your Family. Powered by real-time AI medical insights, cutting-edge diagnostics, and world-class healthcare specialists.
+                    </p>
+                    <div class="hero-cta-group">
+                        <a href="#disease-explorer" class="btn-primary-pill hero-cta-btn">Explore A-Z Diseases</a>
+                        <a href="#3d-viewer" class="btn-secondary-glass">View 3D Anatomical Scan</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== A-Z DISEASE ALPHABET SEARCH & AI INSIGHTS ==================== -->
+        <section class="disease-section" id="disease-explorer">
+            <div class="section-container">
+                <div class="section-header text-center">
+                    <span class="section-tag">Medical Encyclopedia & AI Diagnostic</span>
+                    <h2 class="section-title">A-Z Diseases & Diagnostic Directory</h2>
+                    <p class="section-subtitle">Select any letter below or enter a keyword to fetch disease overview, symptoms, AI risk analysis, and treatment options.</p>
+                </div>
+
+                <!-- ALPHABET NAVIGATION BAR -->
+                <div class="alphabet-container">
+                    <div class="alphabet-bar" id="alphabetBar">
+                        <!-- A-Z Buttons will be generated via JavaScript -->
+                    </div>
+                </div>
+
+                <!-- SEARCH BAR -->
+                <div class="disease-search-wrapper">
+                    <div class="search-input-box">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input type="text" id="diseaseSearchInput" placeholder="Search disease, condition, or symptom (e.g. Asthma, Diabetes, Heart)...">
+                        <button class="search-clear-btn" id="searchClearBtn" style="display:none;">&times;</button>
+                    </div>
+                    <div class="active-filter-badge" id="activeFilterBadge">
+                        Active Filter: <strong id="currentLetterDisplay">All (A-Z)</strong>
+                    </div>
+                </div>
+
+                <!-- DISEASE CARDS GRID -->
+                <div class="disease-grid" id="diseaseGrid">
+                    <div class="loading-spinner">
+                        <div class="spinner"></div>
+                        <p>Loading medical dataset from API database...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 3D ANIMATION SHOWCASE SECTION (3d scroll.mp4) ==================== -->
+        <section class="viewer-3d-section" id="3d-viewer">
+            <!-- Full Cover Background Video (3d scroll.mp4) -->
+            <video id="scroll3DVideo" autoplay loop muted playsinline class="viewer-3d-bg-video">
+                <source src="3d%20scroll.mp4" type="video/mp4">
+            </video>
+            <!-- Gentle Overlay for Text Clarity -->
+            <div class="viewer-3d-gradient-overlay"></div>
+
+            <div class="section-container relative-z10">
+                <div class="section-header text-center">
+                    <span class="section-tag glow-tag">Interactive Anatomical Visualization</span>
+                    <h2 class="section-title text-white">3D Medical Scan & Anatomical Model</h2>
+                    <p class="section-subtitle text-light">Real-time 3D microscopic vascular scan rendering and clinical volume animation.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== LATEST DISEASES & AI BREAKTHROUGHS SECTION ==================== -->
+        <section class="latest-diseases-section" id="latest-diseases">
+            <div class="section-container">
+                <div class="section-header text-center">
+                    <span class="section-tag">Clinical Research & AI Intelligence</span>
+                    <h2 class="section-title">Latest Disease Insights & AI Diagnostics</h2>
+                    <p class="section-subtitle">Real-time clinical breakthroughs, diagnostic biomarker maps, and automated disease risk profiles.</p>
+                </div>
+
+                <div class="latest-diseases-grid" id="latestDiseasesGrid">
+                    <div class="latest-card" onclick="openDiseaseModal(2)">
+                        <div class="latest-card-header">
+                            <span class="category-pill">Neurology</span>
+                            <span class="ai-accuracy-tag">98.2% AI Accuracy</span>
+                        </div>
+                        <h3 class="latest-card-title">Alzheimer's Disease</h3>
+                        <p class="latest-card-desc">Early-stage hippocampal atrophy detection utilizing deep neural MRI volumetric analytics.</p>
+                        <button class="btn-latest-detail">Read AI Biomarker Report &rarr;</button>
+                    </div>
+
+                    <div class="latest-card" onclick="openDiseaseModal(1)">
+                        <div class="latest-card-header">
+                            <span class="category-pill">Pulmonology</span>
+                            <span class="ai-accuracy-tag">96.4% Precision</span>
+                        </div>
+                        <h3 class="latest-card-title">Asthma & Airway Constriction</h3>
+                        <p class="latest-card-desc">Acoustic breath waveform analysis for non-invasive respiratory flare predictor models.</p>
+                        <button class="btn-latest-detail">Read AI Biomarker Report &rarr;</button>
+                    </div>
+
+                    <div class="latest-card" onclick="openDiseaseModal(8)">
+                        <div class="latest-card-header">
+                            <span class="category-pill">Endocrinology</span>
+                            <span class="ai-accuracy-tag">99.1% Confidence</span>
+                        </div>
+                        <h3 class="latest-card-title">Diabetes Mellitus</h3>
+                        <p class="latest-card-desc">Continuous neural time-series predictor forecasting 2-hour postprandial glucose curves.</p>
+                        <button class="btn-latest-detail">Read AI Biomarker Report &rarr;</button>
+                    </div>
+
+                    <div class="latest-card" onclick="openDiseaseModal(19)">
+                        <div class="latest-card-header">
+                            <span class="category-pill">Neurology</span>
+                            <span class="ai-accuracy-tag">97.8% Triage Speed</span>
+                        </div>
+                        <h3 class="latest-card-title">Ischemic Stroke Emergency</h3>
+                        <p class="latest-card-desc">Automated CT brain perfusion AI mapping ischemic core vs penumbra volume in seconds.</p>
+                        <button class="btn-latest-detail">Read AI Biomarker Report &rarr;</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ==================== FOOTER SECTION WITH FULL BACKGROUND VIDEO COVER ==================== -->
+    <footer class="footer-section" id="contact">
+        <!-- Full Cover Background Video (No Symbols or Controls) -->
+        <video id="footerBgVideo" autoplay loop muted playsinline class="footer-full-bg-video">
+            <source src="footer.mp4" type="video/mp4">
+        </video>
+        <!-- Dark Overlay for Crisp Content Readability -->
+        <div class="footer-video-gradient-overlay"></div>
+
+        <div class="footer-container">
+            <div class="footer-grid-overlay">
+                
+                <!-- COLUMN 1: ABOUT & BRAND -->
+                <div class="footer-column-block">
+                    <div class="footer-logo">
+                        <img src="velora-logo.png" alt="Velora Logo" class="footer-logo-img">
+                        <span class="footer-brand-title">VELORA</span>
+                    </div>
+                    <p class="footer-text">
+                        Leading the transformation of modern healthcare through compassionate medical practice combined with clinical-grade artificial intelligence.
+                    </p>
+                    <div class="api-status-card">
+                        <span class="status-indicator online"></span>
+                        <div class="status-info">
+                            <strong>Backend Status: Operational</strong>
+                            <small id="dbInfoText">SQLite API Database Connected</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLUMN 2: QUICK NAVIGATION -->
+                <div class="footer-column-block">
+                    <h4 class="footer-col-title">Quick Navigation</h4>
+                    <ul class="footer-links">
+                        <li><a href="#hero">Home</a></li>
+                        <li><a href="#disease-explorer">A-Z Diseases Encyclopedia</a></li>
+                        <li><a href="#latest-diseases">Latest Insights</a></li>
+                        <li><a href="#3d-viewer">3D Animation</a></li>
+                    </ul>
+                </div>
+
+                <!-- COLUMN 3: EMERGENCY & HOURS -->
+                <div class="footer-column-block">
+                    <h4 class="footer-col-title">Emergency & Hours</h4>
+                    <ul class="contact-info">
+                        <li>
+                            <strong>24/7 Hotline:</strong>
+                            <a href="tel:+18005550199" class="phone-link">+1 (800) 555-0199</a>
+                        </li>
+                        <li>
+                            <strong>Address:</strong>
+                            <span>742 Health Sciences Blvd, Medical District, NY</span>
+                        </li>
+                        <li>
+                            <strong>OPD Hours:</strong>
+                            <span>Mon - Sat: 08:00 AM - 08:00 PM</span>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 CarePlus Medical & AI Healthcare Systems. All rights reserved.</p>
+                <div class="footer-bottom-links">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">API Documentation</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==================== DISEASE DETAIL MODAL ==================== -->
+    <div class="modal-backdrop" id="diseaseModal">
+        <div class="modal-dialog">
+            <button class="modal-close-btn" id="closeDiseaseModal">&times;</button>
+            <div class="modal-header">
+                <span class="modal-category" id="modalCategory">Respiratory</span>
+                <h3 class="modal-title" id="modalTitle">Asthma</h3>
+            </div>
+            <div class="modal-body">
+                <div class="detail-block">
+                    <h4><span class="icon">📖</span> Overview & Explanation</h4>
+                    <p id="modalOverview">Overview details...</p>
+                </div>
+
+                <div class="detail-block">
+                    <h4><span class="icon">⚠️</span> Primary Symptoms</h4>
+                    <div class="symptoms-pills" id="modalSymptoms">
+                        <!-- Symptom pills -->
+                    </div>
+                </div>
+
+                <div class="detail-block ai-highlight-box">
+                    <h4><span class="icon">🤖</span> AI Diagnostic Insight</h4>
+                    <p id="modalAiInsight">AI model analysis...</p>
+                </div>
+
+                <div class="detail-block">
+                    <h4><span class="icon">🩺</span> Recommended Treatment & Management</h4>
+                    <p id="modalTreatment">Treatment plan details...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeDiseaseModal()">Close</button>
+                <a href="#hero" class="btn-primary-pill" onclick="closeDiseaseModal(); openBookingModal();">Book Doctor Consultation</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== API KEY SETTINGS MODAL ==================== -->
+    <div class="modal-backdrop" id="apiKeyModal">
+        <div class="modal-dialog small-dialog">
+            <button class="modal-close-btn" id="closeApiKeyModal">&times;</button>
+            <div class="modal-header">
+                <h3 class="modal-title">API Key Authentication</h3>
+            </div>
+            <div class="modal-body">
+                <p>Manage your SQLite Database API Key for securing medical diagnostic API endpoints.</p>
+                <div class="form-group">
+                    <label for="apiKeyInput">Enter API Key:</label>
+                    <input type="text" id="apiKeyInput" value="CP-AI-KEY-2026-SECURE">
+                </div>
+                <div class="api-feedback" id="apiKeyFeedback"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeApiKeyModal()">Cancel</button>
+                <button class="btn-primary-pill" id="btnVerifyApiKey">Verify & Save Key</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main JavaScript -->
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Velora | Patient Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0ea5e9;
+            --primary-dark: #0284c7;
+            --accent: #10b981;
+            --bg-dark: #0f172a;
+            --sidebar-bg: #0c1222;
+            --content-bg: #f0f4f8;
+            --card-bg: #ffffff;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --shadow: 0 4px 20px rgba(0,0,0,0.06);
+            --transition: all 0.3s ease;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Plus Jakarta Sans',sans-serif; background:var(--content-bg); display:flex; min-height:100vh; }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0; left: 0;
+            height: 100vh;
+            z-index: 100;
+            border-right: 1px solid rgba(255,255,255,0.06);
+        }
+        .sidebar-logo {
+            display: flex; align-items: center; gap: 0.7rem;
+            padding: 1.5rem 1.25rem;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .sidebar-logo img { width: 38px; height: 38px; border-radius: 10px; object-fit: contain; }
+        .sidebar-logo-text { display: flex; flex-direction: column; }
+        .sidebar-logo-title { font-family:'Outfit',sans-serif; font-weight:800; font-size:1.15rem; color:#fff; }
+        .sidebar-logo-sub { font-size:0.6rem; font-weight:600; letter-spacing:1.2px; color:#38bdf8; }
+
+        .sidebar-nav { flex: 1; padding: 1.5rem 0; }
+        .nav-item {
+            display: flex; align-items: center; gap: 0.8rem;
+            padding: 0.75rem 1.25rem;
+            color: #94a3b8; font-size: 0.9rem; font-weight: 500;
+            cursor: pointer; transition: var(--transition);
+            border-left: 3px solid transparent;
+            text-decoration: none;
+        }
+        .nav-item:hover, .nav-item.active {
+            color: #fff; background: rgba(14,165,233,0.1);
+            border-left-color: var(--primary);
+        }
+        .nav-item.active { font-weight: 700; }
+        .nav-item svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+        .sidebar-footer {
+            padding: 1.25rem;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+        .btn-logout {
+            width: 100%; padding: 0.7rem;
+            background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.2);
+            border-radius: var(--radius-sm); color: #fca5a5;
+            font-family: inherit; font-weight: 600; font-size: 0.85rem;
+            cursor: pointer; transition: var(--transition);
+        }
+        .btn-logout:hover { background: rgba(239,68,68,0.25); color: #fee2e2; }
+
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: 260px; flex: 1; padding: 2rem;
+            max-width: calc(100vw - 260px);
+        }
+
+        .welcome-bar {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+        .welcome-text h1 {
+            font-family: 'Outfit', sans-serif; font-size: 1.6rem;
+            color: var(--text-dark); font-weight: 700;
+        }
+        .welcome-text p { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.2rem; }
+        .user-badge {
+            display: flex; align-items: center; gap: 0.6rem;
+            background: var(--card-bg); padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm); border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+        .user-avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: #fff; display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.85rem;
+        }
+
+        /* STAT CARDS */
+        .stats-row {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.25rem; margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--card-bg); border-radius: var(--radius);
+            padding: 1.5rem; border: 1px solid var(--border);
+            box-shadow: var(--shadow); transition: var(--transition);
+        }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,0,0,0.08); }
+        .stat-icon {
+            width: 42px; height: 42px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 0.75rem; font-size: 1.3rem;
+        }
+        .stat-icon.blue { background: #e0f2fe; }
+        .stat-icon.green { background: #d1fae5; }
+        .stat-icon.purple { background: #ede9fe; }
+        .stat-value { font-family:'Outfit',sans-serif; font-size:1.6rem; font-weight:700; color:var(--text-dark); }
+        .stat-label { font-size:0.8rem; color:var(--text-muted); margin-top:0.15rem; }
+
+        /* GRID LAYOUT */
+        .dashboard-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .dash-card {
+            background: var(--card-bg); border-radius: var(--radius);
+            border: 1px solid var(--border); box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        .dash-card-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .dash-card-title {
+            font-family:'Outfit',sans-serif; font-weight:700; font-size:1.05rem;
+            color: var(--text-dark);
+        }
+        .dash-card-body { padding: 1.5rem; }
+
+        /* PROFILE CARD */
+        .profile-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        .profile-item label {
+            display: block; font-size: 0.75rem; font-weight: 600;
+            color: var(--text-muted); margin-bottom: 0.3rem; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .profile-item .value {
+            font-size: 0.95rem; color: var(--text-dark); font-weight: 500;
+        }
+        .profile-item.full { grid-column: 1 / -1; }
+        .condition-tag {
+            display: inline-block; background: #fef3c7; color: #92400e;
+            font-size: 0.75rem; font-weight: 600; padding: 0.2rem 0.6rem;
+            border-radius: 20px; margin: 0.15rem 0.15rem 0.15rem 0;
+        }
+        .allergy-tag {
+            display: inline-block; background: #fee2e2; color: #991b1b;
+            font-size: 0.75rem; font-weight: 600; padding: 0.2rem 0.6rem;
+            border-radius: 20px; margin: 0.15rem 0.15rem 0.15rem 0;
+        }
+
+        /* BOOKING FORM */
+        .form-group { margin-bottom: 1rem; }
+        .form-label {
+            display: block; font-size: 0.8rem; font-weight: 600;
+            color: var(--text-muted); margin-bottom: 0.35rem;
+        }
+        .form-input, .form-select {
+            width: 100%; padding: 0.7rem 0.9rem;
+            background: #f8fafc; border: 1px solid var(--border);
+            border-radius: var(--radius-sm); font-family: inherit;
+            font-size: 0.9rem; color: var(--text-dark); transition: var(--transition);
+        }
+        .form-input:focus, .form-select:focus {
+            border-color: var(--primary); box-shadow: 0 0 0 3px rgba(14,165,233,0.1); outline: none;
+        }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .btn-book {
+            width: 100%; padding: 0.75rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border: none; border-radius: var(--radius-sm); color: #fff;
+            font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 0.95rem;
+            cursor: pointer; transition: var(--transition);
+        }
+        .btn-book:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(14,165,233,0.3); }
+
+        /* APPOINTMENTS TABLE */
+        .apt-table { width: 100%; border-collapse: collapse; }
+        .apt-table th {
+            text-align: left; font-size: 0.75rem; font-weight: 700;
+            color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;
+            padding: 0.6rem 0.75rem; border-bottom: 2px solid var(--border);
+        }
+        .apt-table td {
+            padding: 0.75rem; font-size: 0.85rem; color: var(--text-dark);
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .apt-table tr:hover td { background: #f8fafc; }
+        .status-badge {
+            display: inline-block; padding: 0.2rem 0.6rem;
+            border-radius: 20px; font-size: 0.72rem; font-weight: 700;
+        }
+        .status-badge.confirmed { background: #d1fae5; color: #065f46; }
+        .status-badge.pending { background: #fef3c7; color: #92400e; }
+        .empty-state {
+            text-align: center; padding: 2.5rem 1rem; color: var(--text-muted);
+        }
+        .empty-state svg { margin-bottom: 0.75rem; opacity: 0.4; }
+
+        /* Profile Status Badge */
+        .profile-status-badge {
+            display: inline-flex; align-items: center; gap: 0.35rem;
+            padding: 0.3rem 0.75rem; border-radius: 20px;
+            font-size: 0.8rem; font-weight: 700; letter-spacing: 0.3px;
+        }
+        .profile-status-badge.complete {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            color: #065f46; border: 1px solid #6ee7b7;
+        }
+        .profile-status-badge.incomplete {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            color: #78350f; border: 1px solid #fcd34d;
+        }
+        @keyframes pulseGreen {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.4); }
+            50% { box-shadow: 0 0 0 6px rgba(16,185,129,0); }
+        }
+        .stat-card.profile-complete-card {
+            border-color: #a7f3d0;
+            animation: pulseGreen 2.5s ease-in-out infinite;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed; bottom: 2rem; right: 2rem;
+            background: var(--bg-dark); color: #fff; padding: 0.85rem 1.5rem;
+            border-radius: var(--radius-sm); font-size: 0.9rem; font-weight: 500;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 9999;
+            transform: translateY(100px); opacity: 0; transition: var(--transition);
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+
+        /* DOCTORS GRID */
+        .doctors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.25rem;
+        }
+        .doctor-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        .doctor-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            opacity: 0;
+            transition: var(--transition);
+        }
+        .doctor-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(14,165,233,0.12);
+            border-color: #bae6fd;
+        }
+        .doctor-card:hover::before { opacity: 1; }
+        .doctor-card-top {
+            display: flex; align-items: center; gap: 0.85rem;
+            margin-bottom: 0.85rem;
+        }
+        .doctor-avatar {
+            width: 50px; height: 50px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.25rem; font-weight: 800; color: #fff;
+            flex-shrink: 0;
+        }
+        .doctor-card-info h4 {
+            font-size: 0.95rem; font-weight: 700; color: var(--text-dark);
+            margin-bottom: 0.15rem;
+        }
+        .doctor-card-info p {
+            font-size: 0.78rem; color: var(--text-muted); font-weight: 500;
+        }
+        .doctor-card-meta {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-top: 0.5rem;
+            padding-top: 0.65rem;
+            border-top: 1px solid #f1f5f9;
+        }
+        .doctor-rating {
+            display: flex; align-items: center; gap: 0.25rem;
+            font-size: 0.8rem; font-weight: 700; color: #f59e0b;
+        }
+        .doctor-exp {
+            font-size: 0.75rem; color: var(--text-muted); font-weight: 600;
+        }
+        .btn-view-profile {
+            width: 100%; margin-top: 0.75rem;
+            padding: 0.5rem;
+            background: #f0f9ff; border: 1px solid #e0f2fe;
+            border-radius: var(--radius-sm); color: var(--primary);
+            font-weight: 600; font-size: 0.8rem; cursor: pointer;
+            transition: var(--transition);
+        }
+        .btn-view-profile:hover {
+            background: var(--primary); color: #fff; border-color: var(--primary);
+        }
+
+        /* DOCTOR PROFILE MODAL CONTENT */
+        .profile-modal-header {
+            display: flex; align-items: center; gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .profile-avatar-lg {
+            width: 72px; height: 72px; border-radius: 18px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; font-weight: 800; color: #fff;
+            flex-shrink: 0;
+        }
+        .profile-header-info h2 {
+            font-size: 1.35rem; font-weight: 700; margin-bottom: 0.2rem;
+        }
+        .profile-header-info .spec-badge {
+            display: inline-block; background: #e0f2fe; color: #0369a1;
+            font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem;
+            border-radius: 20px; text-transform: uppercase;
+        }
+        .profile-stats-row {
+            display: grid; grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.75rem; margin-bottom: 1.25rem;
+        }
+        .profile-stat {
+            background: #f8fafc; border-radius: 12px;
+            padding: 0.75rem; text-align: center;
+            border: 1px solid #f1f5f9;
+        }
+        .profile-stat-value {
+            font-family: 'Outfit',sans-serif; font-size: 1.3rem;
+            font-weight: 700; color: var(--text-dark);
+        }
+        .profile-stat-label {
+            font-size: 0.7rem; color: var(--text-muted);
+            font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .profile-bio {
+            font-size: 0.9rem; color: var(--text-muted);
+            line-height: 1.6; margin-bottom: 1rem;
+        }
+        .profile-diseases-list {
+            display: flex; flex-wrap: wrap; gap: 0.4rem;
+            margin-bottom: 1.5rem;
+        }
+        .profile-disease-tag {
+            background: #fef3c7; color: #92400e;
+            font-size: 0.75rem; font-weight: 600;
+            padding: 0.2rem 0.6rem; border-radius: 20px;
+        }
+        .btn-book-doctor {
+            width: 100%; padding: 0.8rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border: none; border-radius: var(--radius-sm); color: #fff;
+            font-family: 'Outfit',sans-serif; font-weight: 700; font-size: 0.95rem;
+            cursor: pointer; transition: var(--transition);
+        }
+        .btn-book-doctor:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(14,165,233,0.3);
+        }
+
+        /* SLOT INFO BAR */
+        .slot-info-bar {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: #f0f9ff;
+            border: 1px solid #e0f2fe;
+            border-radius: var(--radius-sm);
+        }
+        .slot-info-inner {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 1rem;
+        }
+        .slot-progress-wrap {
+            flex: 1;
+        }
+        .slot-progress-bar {
+            width: 100%; height: 8px;
+            background: #e2e8f0; border-radius: 10px;
+            overflow: hidden; margin-bottom: 0.3rem;
+        }
+        .slot-progress-fill {
+            height: 100%; border-radius: 10px;
+            background: linear-gradient(90deg, #10b981, #0ea5e9);
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+        .slot-text {
+            font-size: 0.78rem; font-weight: 600; color: var(--text-muted);
+        }
+        .slot-available {
+            font-size: 0.85rem; font-weight: 700; color: var(--accent);
+            white-space: nowrap;
+        }
+        .slot-available.full {
+            color: #ef4444;
+        }
+
+        /* RECEIPT STYLES */
+        .receipt-wrapper {
+            text-align: center;
+        }
+        .receipt-icon {
+            width: 64px; height: 64px; border-radius: 50%;
+            background: linear-gradient(135deg, #10b981, #059669);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 1rem auto;
+            box-shadow: 0 8px 20px rgba(16,185,129,0.3);
+        }
+        .receipt-title {
+            font-family: 'Outfit',sans-serif; font-size: 1.5rem;
+            font-weight: 800; color: var(--text-dark);
+            margin-bottom: 0.25rem;
+        }
+        .receipt-subtitle {
+            font-size: 0.85rem; color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+        .receipt-token-badge {
+            display: inline-flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            color: #fff; font-family: 'Outfit',sans-serif;
+            font-size: 2.5rem; font-weight: 800;
+            width: 100px; height: 100px; border-radius: 50%;
+            margin: 0 auto 0.5rem auto;
+            box-shadow: 0 10px 30px rgba(14,165,233,0.35);
+        }
+        .receipt-token-label {
+            font-size: 0.8rem; font-weight: 700;
+            color: var(--primary); text-transform: uppercase;
+            letter-spacing: 1px; margin-bottom: 1.5rem;
+        }
+        .receipt-details {
+            text-align: left;
+            background: #f8fafc; border-radius: 12px;
+            padding: 1rem; margin-bottom: 1.25rem;
+            border: 1px solid #f1f5f9;
+        }
+        .receipt-row {
+            display: flex; justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.85rem;
+        }
+        .receipt-row:last-child { border-bottom: none; }
+        .receipt-row-label {
+            color: var(--text-muted); font-weight: 500;
+        }
+        .receipt-row-value {
+            color: var(--text-dark); font-weight: 600;
+        }
+        .receipt-status {
+            display: inline-block;
+            background: #d1fae5; color: #065f46;
+            padding: 0.2rem 0.6rem; border-radius: 20px;
+            font-size: 0.75rem; font-weight: 700;
+        }
+        .btn-receipt-close {
+            width: 100%; padding: 0.75rem;
+            background: var(--bg-dark); border: none;
+            border-radius: var(--radius-sm); color: #fff;
+            font-family: 'Outfit',sans-serif; font-weight: 600;
+            font-size: 0.9rem; cursor: pointer;
+            transition: var(--transition);
+        }
+        .btn-receipt-close:hover {
+            background: #1e293b;
+        }
+
+        /* DISEASE FILTER WRAPPER */
+        .disease-filter-wrapper {
+            display: flex; align-items: center; gap: 0.5rem;
+        }
+
+        /* MODAL STYLES for dashboard */
+        .modal-backdrop {
+            position: fixed; top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(15,23,42,0.5);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none;
+            transition: var(--transition); padding: 1.5rem;
+        }
+        .modal-backdrop.active {
+            opacity: 1; pointer-events: auto;
+        }
+        .modal-dialog {
+            background: #fff; border-radius: 20px;
+            max-width: 520px; width: 100%;
+            max-height: 90vh; overflow-y: auto;
+            position: relative; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            padding: 2rem; transform: translateY(20px);
+            transition: var(--transition);
+        }
+        .modal-backdrop.active .modal-dialog {
+            transform: translateY(0);
+        }
+        .modal-close-btn {
+            position: absolute; top: 1.25rem; right: 1.25rem;
+            background: #f1f5f9; border: none;
+            width: 32px; height: 32px; border-radius: 50%;
+            font-size: 1.1rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            color: #64748b; transition: var(--transition);
+        }
+        .modal-close-btn:hover { background: #e2e8f0; color: #0f172a; }
+        .modal-header { margin-bottom: 1.25rem; }
+        .modal-category {
+            font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+            color: var(--primary); background: #e0f2fe;
+            padding: 0.2rem 0.6rem; border-radius: 20px;
+        }
+        .modal-title {
+            font-size: 1.5rem; margin-top: 0.4rem;
+        }
+
+        /* ========= AI CHATBOT PANEL ========= */
+        .chatbot-nav-btn { position: relative; }
+        .chatbot-pulse {
+            position: absolute; top: 10px; right: 14px;
+            width: 8px; height: 8px; border-radius: 50%;
+            background: #10b981;
+            animation: chatPulse 2s infinite;
+        }
+        @keyframes chatPulse {
+            0%   { box-shadow: 0 0 0 0 rgba(16,185,129,0.6); }
+            70%  { box-shadow: 0 0 0 9px rgba(16,185,129,0); }
+            100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+        }
+        .chat-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.35); backdrop-filter: blur(5px);
+            z-index: 4999; opacity: 0; pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+        .chat-overlay.open { opacity: 1; pointer-events: auto; }
+        .chat-panel {
+            position: fixed; top: 0; right: 0;
+            width: 400px; height: 100vh;
+            background: #f8fafc; z-index: 5000;
+            display: flex; flex-direction: column;
+            box-shadow: -12px 0 60px rgba(0,0,0,0.18);
+            transform: translateX(100%);
+            transition: transform 0.42s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .chat-panel.open { transform: translateX(0); }
+        .chat-header {
+            background: linear-gradient(135deg, #0c1222 0%, #1e293b 100%);
+            padding: 1.1rem 1.25rem;
+            display: flex; align-items: center; gap: 0.85rem;
+            border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0;
+        }
+        .chat-bot-avatar {
+            width: 44px; height: 44px; border-radius: 14px;
+            background: linear-gradient(135deg, #0ea5e9, #10b981);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.35rem; flex-shrink: 0;
+            box-shadow: 0 4px 16px rgba(14,165,233,0.45);
+        }
+        .chat-header-info { flex: 1; }
+        .chat-header-name { color: #fff; font-weight: 700; font-size: 0.95rem; font-family: 'Outfit', sans-serif; }
+        .chat-header-sub { display: flex; align-items: center; gap: 0.35rem; margin-top: 0.1rem; }
+        .chat-status-dot { width: 7px; height: 7px; border-radius: 50%; background: #10b981; flex-shrink: 0; }
+        .chat-status-text { color: #94a3b8; font-size: 0.72rem; }
+        .chat-close-btn {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: rgba(255,255,255,0.1); border: none;
+            color: #94a3b8; font-size: 1rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .chat-close-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+        .chat-messages {
+            flex: 1; overflow-y: auto; padding: 1.25rem;
+            display: flex; flex-direction: column; gap: 0.9rem;
+            scroll-behavior: smooth;
+        }
+        .chat-messages::-webkit-scrollbar { width: 3px; }
+        .chat-messages::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
+        .chat-msg { display: flex; gap: 0.5rem; }
+        .chat-msg.user { flex-direction: row-reverse; align-self: flex-end; max-width: 88%; }
+        .chat-msg.bot { align-self: flex-start; max-width: 100%; }
+        .chat-msg-avatar {
+            width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem; font-weight: 700; margin-top: 2px;
+        }
+        .chat-msg.bot .chat-msg-avatar { background: linear-gradient(135deg, #0ea5e9, #10b981); color: #fff; }
+        .chat-msg.user .chat-msg-avatar { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; }
+        .chat-bubble {
+            padding: 0.7rem 1rem; border-radius: 16px;
+            font-size: 0.865rem; line-height: 1.55;
+        }
+        .chat-msg.user .chat-bubble {
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            color: #fff; border-bottom-right-radius: 4px;
+        }
+        .chat-msg.bot .chat-bubble {
+            background: #fff; color: #1e293b;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            border-bottom-left-radius: 4px; border: 1px solid #e2e8f0;
+        }
+        .chat-time { font-size: 0.62rem; color: #94a3b8; margin-top: 0.2rem; padding: 0 0.2rem; }
+        .chat-msg.user .chat-time { text-align: right; }
+        /* Disease Card */
+        .chat-disease-card {
+            background: #fff; border-radius: 16px; border: 1px solid #e2e8f0;
+            overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            max-width: 340px;
+        }
+        .chat-disease-hdr {
+            background: linear-gradient(135deg, #0c1222, #1e293b);
+            padding: 0.85rem 1rem;
+        }
+        .chat-disease-name { color: #fff; font-weight: 800; font-size: 1rem; font-family: 'Outfit', sans-serif; }
+        .chat-disease-cat {
+            display: inline-block; margin-top: 0.3rem; margin-right: 0.3rem;
+            background: rgba(14,165,233,0.2); color: #38bdf8;
+            padding: 0.12rem 0.5rem; border-radius: 20px;
+            font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .chat-disease-body { padding: 0.85rem; display: flex; flex-direction: column; gap: 0.65rem; }
+        .chat-section-label {
+            font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.5px; color: #94a3b8; margin-bottom: 0.18rem;
+        }
+        .chat-section-text { font-size: 0.81rem; color: #334155; line-height: 1.55; }
+        .chat-ai-insight {
+            display: flex; gap: 0.4rem; align-items: flex-start;
+            padding: 0.55rem 0.7rem; border-radius: 10px;
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border: 1px solid #bae6fd;
+        }
+        .chat-ai-insight span:last-child { font-size: 0.78rem; color: #0369a1; line-height: 1.5; }
+        /* Typing indicator */
+        .chat-typing {
+            display: flex; align-items: center; gap: 0.45rem;
+            padding: 0.65rem 0.9rem; background: #fff;
+            border-radius: 16px; border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07); border: 1px solid #e2e8f0;
+        }
+        .typing-dots { display: flex; gap: 0.25rem; }
+        .typing-dot {
+            width: 7px; height: 7px; border-radius: 50%; background: #94a3b8;
+            animation: typingBounce 1.3s ease-in-out infinite;
+        }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typingBounce {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-6px); opacity: 1; }
+        }
+        /* Quick chips */
+        .chat-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.5rem; }
+        .chat-chip {
+            display: inline-block; padding: 0.22rem 0.6rem;
+            background: #f0f9ff; color: #0369a1;
+            border: 1px solid #bae6fd; border-radius: 20px;
+            font-size: 0.73rem; font-weight: 600; cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .chat-chip:hover { background: #0ea5e9; color: #fff; border-color: #0ea5e9; }
+        /* Input area */
+        .chat-input-area {
+            padding: 0.85rem; border-top: 1px solid #e2e8f0;
+            background: #fff; flex-shrink: 0;
+        }
+        .chat-voice-indicator {
+            display: none; align-items: center; gap: 0.5rem;
+            padding: 0.4rem 0.75rem; background: #fff0f0; border-radius: 8px;
+            margin-bottom: 0.5rem; font-size: 0.75rem; font-weight: 600; color: #dc2626;
+        }
+        .chat-voice-indicator.active { display: flex; }
+        .voice-wave { display: flex; gap: 2px; align-items: center; }
+        .voice-bar {
+            width: 3px; background: #ef4444; border-radius: 2px;
+            animation: vWave 0.7s ease-in-out infinite;
+        }
+        .voice-bar:nth-child(1) { height: 8px; }
+        .voice-bar:nth-child(2) { height: 14px; animation-delay: 0.1s; }
+        .voice-bar:nth-child(3) { height: 10px; animation-delay: 0.2s; }
+        .voice-bar:nth-child(4) { height: 16px; animation-delay: 0.15s; }
+        .voice-bar:nth-child(5) { height: 8px; animation-delay: 0.3s; }
+        @keyframes vWave {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(0.35); }
+        }
+        .chat-input-wrap {
+            display: flex; align-items: center; gap: 0.4rem;
+            background: #f8fafc; border: 1.5px solid #e2e8f0;
+            border-radius: 14px; padding: 0.45rem 0.45rem 0.45rem 0.8rem;
+            transition: border-color 0.2s ease;
+        }
+        .chat-input-wrap:focus-within { border-color: #0ea5e9; box-shadow: 0 0 0 3px rgba(14,165,233,0.1); }
+        .chat-input-field {
+            flex: 1; border: none; background: transparent;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.875rem; color: #1e293b; outline: none;
+            resize: none; max-height: 90px; line-height: 1.4;
+        }
+        .chat-input-field::placeholder { color: #94a3b8; }
+        .chat-mic-btn, .chat-send-btn {
+            width: 36px; height: 36px; border-radius: 10px; border: none;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s ease; flex-shrink: 0;
+        }
+        .chat-mic-btn { background: #f1f5f9; color: #64748b; }
+        .chat-mic-btn:hover { background: #e2e8f0; color: #1e293b; }
+        .chat-mic-btn.recording {
+            background: #fee2e2; color: #ef4444;
+            animation: recPulse 1s infinite;
+        }
+        @keyframes recPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
+            50% { box-shadow: 0 0 0 8px rgba(239,68,68,0); }
+        }
+        .chat-send-btn { background: linear-gradient(135deg, #0ea5e9, #10b981); color: #fff; }
+        .chat-send-btn:hover { transform: scale(1.06); box-shadow: 0 4px 14px rgba(14,165,233,0.38); }
+        .chat-send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+        @media (max-width: 900px) { .chat-panel { width: 100vw; } }
+
+        @media (max-width: 900px) {
+            .sidebar { width: 70px; }
+            .sidebar-logo-text, .nav-item span, .sidebar-footer { display: none; }
+            .sidebar-logo { padding: 1rem 0.75rem; justify-content: center; }
+            .nav-item { justify-content: center; padding: 0.75rem; border-left: none; }
+            .main-content { margin-left: 70px; max-width: calc(100vw - 70px); }
+            .dashboard-grid { grid-template-columns: 1fr; }
+            .doctors-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+        }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <img src="velora-logo.png" alt="Velora">
+            <div class="sidebar-logo-text">
+                <span class="sidebar-logo-title">VELORA</span>
+                <span class="sidebar-logo-sub">PATIENT PORTAL</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <a class="nav-item active" href="#" data-section="overview">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                <span>Dashboard</span>
+            </a>
+            <a class="nav-item" href="#" data-section="profile">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span>My Profile</span>
+            </a>
+            <a class="nav-item" href="#" data-section="appointments">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span>Appointments</span>
+            </a>
+            <a class="nav-item" href="/#disease-explorer">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                <span>A-Z Diseases</span>
+            </a>
+            <a class="nav-item" href="/#3d-viewer">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                <span>3D Animation</span>
+            </a>
+            <a class="nav-item chatbot-nav-btn" href="#" id="chatbotNavBtn" onclick="event.preventDefault();openChatbot()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><circle cx="9" cy="11" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="11" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="11" r="1" fill="currentColor" stroke="none"/></svg>
+                <span>AI Health Bot</span>
+                <div class="chatbot-pulse"></div>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="btn-logout" id="logoutBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Logout
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <div class="welcome-bar">
+            <div class="welcome-text">
+                <h1 id="welcomeTitle">Welcome back!</h1>
+                <p>Manage your health profile, book appointments, and access AI diagnostics.</p>
+            </div>
+            <div class="user-badge">
+                <div class="user-avatar" id="userAvatar">?</div>
+                <div>
+                    <div style="font-weight:700;font-size:0.9rem;color:var(--text-dark)" id="userNameBadge">Patient</div>
+                    <div style="font-size:0.75rem;color:var(--text-muted)" id="userEmailBadge">email</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STATS ROW -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-icon blue">📅</div>
+                <div class="stat-value" id="totalApts">0</div>
+                <div class="stat-label">Total Appointments</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green">✅</div>
+                <div class="stat-value" id="confirmedApts">0</div>
+                <div class="stat-label">Confirmed</div>
+            </div>
+            <div class="stat-card" id="profileStatusCard">
+                <div class="stat-icon purple">👤</div>
+                <div id="profileStatusBadge" style="margin-bottom:0.15rem">--</div>
+                <div class="stat-label">Profile Status</div>
+            </div>
+        </div>
+
+        <!-- DASHBOARD GRID -->
+        <div class="dashboard-grid">
+            <!-- PROFILE CARD -->
+            <div class="dash-card">
+                <div class="dash-card-header">
+                    <span class="dash-card-title">Patient Profile</span>
+                </div>
+                <div class="dash-card-body">
+                    <div class="profile-grid" id="profileGrid">
+                        <div class="profile-item"><label>Name</label><div class="value" id="pName">--</div></div>
+                        <div class="profile-item"><label>Email</label><div class="value" id="pEmail">--</div></div>
+                        <div class="profile-item"><label>Age</label><div class="value" id="pAge">--</div></div>
+                        <div class="profile-item"><label>Gender</label><div class="value" id="pGender">--</div></div>
+                        <div class="profile-item full"><label>Medical Conditions</label><div class="value" id="pConditions">--</div></div>
+                        <div class="profile-item full"><label>Allergies</label><div class="value" id="pAllergies">--</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FIND DOCTORS (Disease-based) -->
+            <div class="dash-card" style="grid-column: 1 / -1">
+                <div class="dash-card-header">
+                    <span class="dash-card-title">🩺 Find a Doctor</span>
+                    <div class="disease-filter-wrapper">
+                        <select class="form-select" id="diseaseFilter" style="width:220px;padding:0.5rem 0.8rem;font-size:0.85rem;">
+                            <option value="">All Diseases (Show All Doctors)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="dash-card-body">
+                    <div class="doctors-grid" id="doctorsGrid">
+                        <div class="empty-state">
+                            <p>Loading doctors...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- APPOINTMENTS TABLE -->
+        <div class="dash-card" style="margin-top:1.5rem">
+            <div class="dash-card-header">
+                <span class="dash-card-title">Appointment History</span>
+            </div>
+            <div class="dash-card-body" style="padding:0">
+                <div id="appointmentsArea">
+                    <div class="empty-state">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        <p>No appointments yet. Book your first appointment above.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DOCTOR MINI PROFILE MODAL -->
+    <div class="modal-backdrop" id="doctorProfileModal">
+        <div class="modal-dialog" style="max-width:520px" onclick="event.stopPropagation()">
+            <button class="modal-close-btn" onclick="closeDoctorProfile()">✕</button>
+            <div id="doctorProfileContent">
+                <!-- Dynamic doctor profile content -->
+            </div>
+        </div>
+    </div>
+
+    <!-- BOOKING MODAL -->
+    <div class="modal-backdrop" id="bookingModal">
+        <div class="modal-dialog" style="max-width:480px" onclick="event.stopPropagation()">
+            <button class="modal-close-btn" onclick="closeBookingModal()">✕</button>
+            <div class="modal-header">
+                <span class="modal-category" id="bookingDoctorSpec">Specialization</span>
+                <h2 class="modal-title" style="font-size:1.4rem" id="bookingDoctorName">Doctor Name</h2>
+                <p style="color:var(--text-muted);font-size:0.85rem;margin-top:0.25rem">Disease: <strong id="bookingDiseaseName">--</strong></p>
+            </div>
+            <form id="tokenBookingForm" onsubmit="handleTokenBooking(event)">
+                <div class="form-group">
+                    <label class="form-label">Select Date</label>
+                    <input type="date" class="form-input" id="tokenDate" required>
+                </div>
+                <div class="slot-info-bar" id="slotInfoBar" style="display:none">
+                    <div class="slot-info-inner">
+                        <div class="slot-progress-wrap">
+                            <div class="slot-progress-bar">
+                                <div class="slot-progress-fill" id="slotProgressFill"></div>
+                            </div>
+                            <span class="slot-text" id="slotText">0 / 30 booked</span>
+                        </div>
+                        <span class="slot-available" id="slotAvailable">30 available</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Patient Name</label>
+                    <input type="text" class="form-input" id="tokenPatientName" required placeholder="Enter your full name">
+                </div>
+                <button type="submit" class="btn-book" id="tokenBookBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:middle;margin-right:6px"><path d="M20 6L9 17l-5-5"/></svg>
+                    Book Token
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- RECEIPT MODAL -->
+    <div class="modal-backdrop" id="receiptModal">
+        <div class="modal-dialog" style="max-width:440px" onclick="event.stopPropagation()">
+            <button class="modal-close-btn" onclick="closeReceiptModal()">✕</button>
+            <div id="receiptContent">
+                <!-- Dynamic receipt content -->
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <!-- CHATBOT OVERLAY -->
+    <div class="chat-overlay" id="chatOverlay" onclick="closeChatbot()"></div>
+
+    <!-- CHATBOT PANEL -->
+    <div class="chat-panel" id="chatPanel">
+        <div class="chat-header">
+            <div class="chat-bot-avatar">🤖</div>
+            <div class="chat-header-info">
+                <div class="chat-header-name">Velora AI Health Bot</div>
+                <div class="chat-header-sub">
+                    <div class="chat-status-dot"></div>
+                    <span class="chat-status-text">Online • Ask me anything about diseases</span>
+                </div>
+            </div>
+            <button class="chat-close-btn" onclick="closeChatbot()">✕</button>
+        </div>
+
+        <div class="chat-messages" id="chatMessages"></div>
+
+        <div class="chat-input-area">
+            <div class="chat-voice-indicator" id="chatVoiceIndicator">
+                <div class="voice-wave">
+                    <div class="voice-bar"></div><div class="voice-bar"></div>
+                    <div class="voice-bar"></div><div class="voice-bar"></div>
+                    <div class="voice-bar"></div>
+                </div>
+                🎙️ Recording... tap mic to stop
+            </div>
+            <div class="chat-input-wrap">
+                <textarea class="chat-input-field" id="chatInput" rows="1"
+                    placeholder="Ask about any disease, symptoms, treatment..."></textarea>
+                <button class="chat-mic-btn" id="chatMicBtn" onclick="toggleVoiceInput()" title="Voice input">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                        <line x1="12" y1="19" x2="12" y2="23"/>
+                        <line x1="8" y1="23" x2="16" y2="23"/>
+                    </svg>
+                </button>
+                <button class="chat-send-btn" id="chatSendBtn" onclick="sendChatMessage()" title="Send">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <line x1="22" y1="2" x2="11" y2="13"/>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>

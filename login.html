@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Velora | Patient Login & Sign Up</title>
+    <meta name="description" content="Velora patient portal - Sign up or login to manage your health profile, book appointments, and access AI diagnostics.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0ea5e9;
+            --primary-dark: #0284c7;
+            --accent: #10b981;
+            --bg-dark: #0f172a;
+            --bg-card: rgba(15, 23, 42, 0.85);
+            --text-white: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: rgba(255,255,255,0.12);
+            --radius: 16px;
+            --radius-sm: 10px;
+            --transition: all 0.3s ease;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-dark);
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            overflow-y: auto;
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle at 30% 40%, rgba(14, 165, 233, 0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 60%, rgba(16, 185, 129, 0.06) 0%, transparent 50%),
+                        radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.04) 0%, transparent 40%);
+            animation: bgPulse 15s ease-in-out infinite alternate;
+        }
+
+        @keyframes bgPulse {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-3%, -3%) scale(1.08); }
+        }
+
+        /* Floating Particles */
+        .particles {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px; height: 4px;
+            background: rgba(14, 165, 233, 0.3);
+            border-radius: 50%;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .particle:nth-child(2) { left: 20%; top: 30%; animation-delay: -2s; background: rgba(16,185,129,0.25); width: 6px; height: 6px; }
+        .particle:nth-child(3) { left: 60%; top: 20%; animation-delay: -4s; width: 3px; height: 3px; }
+        .particle:nth-child(4) { left: 80%; top: 60%; animation-delay: -1s; background: rgba(99,102,241,0.2); width: 5px; height: 5px; }
+        .particle:nth-child(5) { left: 40%; top: 80%; animation-delay: -3s; }
+        .particle:nth-child(6) { left: 10%; top: 70%; animation-delay: -5s; background: rgba(16,185,129,0.3); width: 4px; height: 4px; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0.4; }
+            25% { transform: translateY(-30px) translateX(15px); opacity: 0.8; }
+            50% { transform: translateY(-15px) translateX(-10px); opacity: 0.5; }
+            75% { transform: translateY(-40px) translateX(20px); opacity: 0.7; }
+        }
+
+        /* Login Container */
+        .auth-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 480px;
+            padding: 1.5rem;
+        }
+
+        .auth-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2.5rem;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+        }
+
+        /* Logo Header */
+        .auth-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            justify-content: center;
+        }
+
+        .auth-logo img {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            object-fit: contain;
+        }
+
+        .auth-logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .auth-logo-title {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: #ffffff;
+            letter-spacing: 0.5px;
+        }
+
+        .auth-logo-subtitle {
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            color: #38bdf8;
+        }
+
+        /* Tab Switcher */
+        .tab-switcher {
+            display: flex;
+            background: rgba(30, 41, 59, 0.6);
+            border-radius: var(--radius-sm);
+            padding: 4px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 0.7rem;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
+        }
+
+        .tab-btn:hover:not(.active) {
+            color: #e2e8f0;
+        }
+
+        /* Form Panels */
+        .form-panel {
+            display: none;
+            animation: fadeSlide 0.4s ease;
+        }
+
+        .form-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeSlide {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Form Groups */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 0.4rem;
+            letter-spacing: 0.3px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: var(--radius-sm);
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: var(--transition);
+        }
+
+        .form-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+            outline: none;
+        }
+
+        .form-input::placeholder {
+            color: #475569;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: var(--radius-sm);
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: var(--transition);
+            appearance: none;
+        }
+
+        .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+            outline: none;
+        }
+
+        .form-select option {
+            background: #1e293b;
+            color: #ffffff;
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: var(--radius-sm);
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 70px;
+            transition: var(--transition);
+        }
+
+        .form-textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+            outline: none;
+        }
+
+        /* Submit Button */
+        .btn-auth {
+            width: 100%;
+            padding: 0.9rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border: none;
+            border-radius: var(--radius-sm);
+            color: #ffffff;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 0.5rem;
+            letter-spacing: 0.3px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-auth:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(14, 165, 233, 0.35);
+        }
+
+        .btn-auth:active {
+            transform: translateY(0);
+        }
+
+        .btn-auth:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Error / Success Messages */
+        .auth-message {
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            display: none;
+            animation: fadeSlide 0.3s ease;
+        }
+
+        .auth-message.error {
+            display: block;
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        .auth-message.success {
+            display: block;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #6ee7b7;
+        }
+
+        /* Back Link */
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-decoration: none;
+            margin-bottom: 1.5rem;
+            transition: var(--transition);
+        }
+
+        .back-link:hover {
+            color: var(--primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 520px) {
+            .auth-card {
+                padding: 1.75rem 1.5rem;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+    <div class="particles">
+        <div class="particle" style="left:5%;top:15%"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
+    <div class="auth-container">
+        <a href="/" class="back-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Back to Velora Home
+        </a>
+
+        <div class="auth-card">
+            <!-- Logo -->
+            <div class="auth-logo">
+                <img src="velora-logo.png" alt="Velora Logo">
+                <div class="auth-logo-text">
+                    <span class="auth-logo-title">VELORA</span>
+                    <span class="auth-logo-subtitle">WELLNESS MEETS AI</span>
+                </div>
+            </div>
+
+            <!-- Tab Switcher -->
+            <div class="tab-switcher">
+                <button class="tab-btn active" id="loginTab" onclick="switchTab('login')">Login</button>
+                <button class="tab-btn" id="signupTab" onclick="switchTab('signup')">Sign Up</button>
+            </div>
+
+            <!-- Message Area -->
+            <div class="auth-message" id="authMessage"></div>
+
+            <!-- LOGIN FORM -->
+            <div class="form-panel active" id="loginPanel">
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-input" id="loginEmail" placeholder="patient@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-input" id="loginPassword" placeholder="Enter your password" required>
+                    </div>
+                    <button type="submit" class="btn-auth" id="loginBtn">Login to Dashboard</button>
+                </form>
+            </div>
+
+            <!-- SIGNUP FORM -->
+            <div class="form-panel" id="signupPanel">
+                <form id="signupForm" onsubmit="handleSignup(event)">
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" class="form-input" id="signupName" placeholder="John Doe" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-input" id="signupEmail" placeholder="patient@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-input" id="signupPassword" placeholder="Min 6 characters" required minlength="6">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Age</label>
+                            <input type="number" class="form-input" id="signupAge" placeholder="25" min="1" max="120">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Gender</label>
+                            <select class="form-select" id="signupGender">
+                                <option value="">Select</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Existing Medical Conditions</label>
+                        <textarea class="form-textarea" id="signupConditions" placeholder="e.g. Diabetes, Hypertension (leave blank if none)"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Known Allergies</label>
+                        <textarea class="form-textarea" id="signupAllergies" placeholder="e.g. Penicillin, Peanuts (leave blank if none)"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-auth" id="signupBtn">Create Account & Enter Dashboard</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check if already logged in
+        const existingToken = localStorage.getItem('velora_token');
+        if (existingToken) {
+            window.location.href = '/dashboard.html';
+        }
+
+        function switchTab(tab) {
+            const loginTab = document.getElementById('loginTab');
+            const signupTab = document.getElementById('signupTab');
+            const loginPanel = document.getElementById('loginPanel');
+            const signupPanel = document.getElementById('signupPanel');
+            const msg = document.getElementById('authMessage');
+
+            msg.className = 'auth-message';
+            msg.style.display = 'none';
+
+            if (tab === 'login') {
+                loginTab.classList.add('active');
+                signupTab.classList.remove('active');
+                loginPanel.classList.add('active');
+                signupPanel.classList.remove('active');
+            } else {
+                signupTab.classList.add('active');
+                loginTab.classList.remove('active');
+                signupPanel.classList.add('active');
+                loginPanel.classList.remove('active');
+            }
+        }
+
+        function showMessage(text, type) {
+            const msg = document.getElementById('authMessage');
+            msg.textContent = text;
+            msg.className = `auth-message ${type}`;
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const btn = document.getElementById('loginBtn');
+            btn.disabled = true;
+            btn.textContent = 'Authenticating...';
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: document.getElementById('loginEmail').value,
+                        password: document.getElementById('loginPassword').value
+                    })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    showMessage(data.detail || 'Login failed.', 'error');
+                    btn.disabled = false;
+                    btn.textContent = 'Login to Dashboard';
+                    return;
+                }
+
+                // Store token and redirect
+                localStorage.setItem('velora_token', data.token);
+                localStorage.setItem('velora_patient', JSON.stringify(data.patient));
+                showMessage(data.message, 'success');
+
+                setTimeout(() => {
+                    window.location.href = '/dashboard.html';
+                }, 800);
+
+            } catch (err) {
+                showMessage('Connection error. Please check if the server is running.', 'error');
+                btn.disabled = false;
+                btn.textContent = 'Login to Dashboard';
+            }
+        }
+
+        async function handleSignup(e) {
+            e.preventDefault();
+            const btn = document.getElementById('signupBtn');
+            btn.disabled = true;
+            btn.textContent = 'Creating Account...';
+
+            const age = document.getElementById('signupAge').value;
+
+            try {
+                const res = await fetch('/api/auth/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: document.getElementById('signupName').value,
+                        email: document.getElementById('signupEmail').value,
+                        password: document.getElementById('signupPassword').value,
+                        age: age ? parseInt(age) : null,
+                        gender: document.getElementById('signupGender').value || null,
+                        conditions: document.getElementById('signupConditions').value,
+                        allergies: document.getElementById('signupAllergies').value
+                    })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    showMessage(data.detail || 'Signup failed.', 'error');
+                    btn.disabled = false;
+                    btn.textContent = 'Create Account & Enter Dashboard';
+                    return;
+                }
+
+                // Store token and redirect
+                localStorage.setItem('velora_token', data.token);
+                localStorage.setItem('velora_patient', JSON.stringify(data.patient));
+                showMessage(data.message, 'success');
+
+                setTimeout(() => {
+                    window.location.href = '/dashboard.html';
+                }, 800);
+
+            } catch (err) {
+                showMessage('Connection error. Please check if the server is running.', 'error');
+                btn.disabled = false;
+                btn.textContent = 'Create Account & Enter Dashboard';
+            }
+        }
+    </script>
+</body>
+</html>
